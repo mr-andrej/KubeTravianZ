@@ -63,8 +63,6 @@ AccessLogger::logRequest();
 
 		<td><a href="anleitung.php"><span><?php echo PUBLIC_MANUAL; ?></span></a></td>
 
-		<td><a href="https://github.com/Shadowss/TravianZ/discussions" target="_blank"><span><?php echo FORUM; ?></span></a></td>
-
 
 
 

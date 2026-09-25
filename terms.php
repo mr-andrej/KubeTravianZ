@@ -102,7 +102,6 @@ AccessLogger::logRequest();
             <tr>
                 <td><a href="tutorial.php"><span><?php echo TUTORIAL; ?></span></a></td>
                 <td><a href="anleitung.php"><span><?php echo PUBLIC_MANUAL; ?></span></a></td>
-                <td><a href="https://github.com/Shadowss/TravianZ/discussions" target="_blank"><span><?php echo FORUM; ?></span></a></td>
                 <td><a href="index.php?signup"><span><?php echo PUBLIC_REGISTER; ?></span></a></td>
                 <td><a href="index.php?login"><span><?php echo LOGIN; ?></span></a></td>
             </tr>

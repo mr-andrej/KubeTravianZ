@@ -42,7 +42,7 @@
 <li><a href="manual.php?typ=13&amp;s=31">New features</a><br>These are new features that you will not find in the real version of the game Travian T3.6. Here you can get acquainted with all new features in more detail.</li><br>
 <?php } ?>
 
-<li><a href="anleitung.php?s=3" target="_blank">Travian FAQ <img class="external" src="img/x.gif" alt="new window" title="new window" /></a><br>This ingame help just gives you brief information. More information is available at the <a href="http://travian.wikia.com/wiki/Travian_Wiki" target=blank>Fandom Travian Wiki</a>.</li>
+<li><a href="anleitung.php?s=3" target="_blank">Travian FAQ <img class="external" src="img/x.gif" alt="new window" title="new window" /></a><br>This ingame help gives you a brief overview of the game mechanics.</li>
 </ul>
 <map id="nav" name="nav">
     <area href="manual.php?typ=3&amp;s=3" title="<?php echo BACK; ?>" coords="0,0,45,18" shape="rect" alt="" />
