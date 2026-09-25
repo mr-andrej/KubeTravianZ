@@ -42,7 +42,7 @@
 <li><a href="manual.php?typ=13&amp;s=31"><?php echo NEW_FEATURES; ?></a><br><?php echo MANUAL_NEW_FEATURES_DESC; ?></li><br>
 <?php } ?>
 
-<li><a href="anleitung.php?s=3" target="_blank"><?php echo MANUAL_FAQ; ?> <img class="external" src="img/x.gif" alt="<?php echo NEW_WINDOW; ?>" title="<?php echo NEW_WINDOW; ?>" /></a><br><?php echo MANUAL_FAQ_DESC; ?> <a href="http://travian.wikia.com/wiki/Travian_Wiki" target=blank>Fandom Travian Wiki</a>.</li>
+<li><a href="anleitung.php?s=3" target="_blank"><?php echo MANUAL_FAQ; ?> <img class="external" src="img/x.gif" alt="<?php echo NEW_WINDOW; ?>" title="<?php echo NEW_WINDOW; ?>" /></a><br><?php echo MANUAL_FAQ_DESC; ?></li>
 </ul>
 <map id="nav" name="nav">
     <area href="manual.php?typ=3&amp;s=3" title="<?php echo BACK; ?>" coords="0,0,45,18" shape="rect" alt="" />

@@ -41,28 +41,4 @@
 
     <br />
 
-    <div style="text-align: center;">
-        <b>
-            <?php echo TZ_VISIT; ?>
-            <a href="http://forum.ragezone.com/f583/travianz-version-modified-shadow-many-967580/" target="_blank">
-                <?php echo TZ_RAGEZONE_COM; ?>
-            </a>
-        </b>
-    </div>
-
-    <br />
-
-    <div style="text-align: center;">
-        <b>
-            <u>
-                <?php echo TZ_DOWNLOAD_FROM; ?>
-                <a href="https://github.com/Shadowss/TravianZ/archive/master.zip" target="_blank">
-                    <?php echo TZ_GITHUB; ?>
-                </a>
-            </u>
-        </b>
-    </div>
-
-    <br />
-
 </div>

@@ -9,9 +9,7 @@ The taskmaster will help you on your way to establishing your empire with advice
 <ul style="margin-top:0;margin-bottom:0;">
 <li>You have to heed the <a href="rules.php">game rules</a></li>
 <li>Information concerning troops and buildings can be found in the <a href="#" onClick="return Popup(0,0);">instructions</a></li>
-<li>Problems? Check the <a href="http://t3.answers.travianz.org" target="_blank">Travian Answers</a> first!</li>
-<li>No solution? Try asking in the <a href="https://github.com/Shadowss/TravianZ">Forum</a></li>
-<li>Tried everything to no avail? Write an answer to this message to contact the Support</li>
+<li>Problems or questions? Write an answer to this message to contact the Support</li>
 </ul>
 
 <b>Game World Timeline</b>

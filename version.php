@@ -198,47 +198,6 @@ echo '<div class="developer-card" style="
         </div>
     </a>
 
-    <!-- PayPal Donate -->
-    <a href="https://paypal.me/cata7007" target="_blank" style="text-decoration:none; flex:1;">
-        <div style="
-            background: #e6f7ff;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100px;
-        " onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='6px 6px 20px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='3px 3px 10px rgba(0,0,0,0.2)';">
-            <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal Donate" style="width:40px; height:40px; margin-bottom:8px;">
-            <div style="font-weight:bold; font-size:1.1em; color:#004080;">Donate</div>
-        </div>
-    </a>
-
-    <!-- GitHub -->
-    <a href="https://github.com/Shadowss/TravianZ/archive/master.zip" target="_blank" style="text-decoration:none; flex:1;">
-        <div style="
-            background: #f0f0f0;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100px;
-        " onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='6px 6px 20px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='3px 3px 10px rgba(0,0,0,0.2)';">
-            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" style="width:35px; height:35px; margin-bottom:8px;">
-            <div style="font-weight:bold; font-size:1.1em; color:#24292f;">GitHub</div>
-            <div style="margin-top:3px; font-size:0.9em; color:#333;">Download</div>
-        </div>
-    </a>
-
 </div>
 </div>
 </div>
