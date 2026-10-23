@@ -1,0 +1,44 @@
+name: Helm chart
+
+on:
+  pull_request:
+    paths:
+      - "deploy/**"
+  push:
+    branches: [ master, test, "feature/**" ]
+    paths:
+      - "deploy/**"
+
+permissions:
+  contents: read
+
+jobs:
+  chart:
+    name: Lint and render
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Lint chart
+        run: helm lint deploy/charts/travianz
+
+      - name: Render templates
+        run: helm template tz deploy/charts/travianz > rendered.yaml
+
+      - name: Rendered config.php is valid PHP
+        run: |
+          awk '/^  config.php: \|/{flag=1;next} flag && /^    /{print substr($0,5)} flag && !/^    /{flag=0}' \
+            rendered.yaml > rendered-config.php
+          php -l rendered-config.php
+
+      - name: No hardcoded secret values in templates
+        run: |
+          # every *-password/secret/key entry in templates must be a Helm
+          # expression, never a quoted literal
+          ! grep -rInE '(password|secret|-key|Key):\s*"' deploy/charts/travianz/templates/ \
+          || { echo "hardcoded secret value in templates"; exit 1; }

@@ -20,6 +20,10 @@ spec:
         {{- include "travianz.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: db-init
     spec:
+      securityContext:
+        runAsUser: 33
+        runAsGroup: 33
+        fsGroup: 33
       restartPolicy: Never
       containers:
         - name: init
