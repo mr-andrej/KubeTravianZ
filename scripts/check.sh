@@ -17,6 +17,13 @@ lint_php()
 			continue
 		fi
 
+		# Helm chart file templates contain {{ }} placeholders; they are
+		# rendered by Helm before they ever run as PHP. The rendered output
+		# is linted separately in the Helm chart workflow.
+		if [[ "$file" == deploy/charts/*/files/* ]]; then
+			continue
+		fi
+
 		php -l "$file" > /dev/null
 		linted=$((linted + 1))
 	done < <(git ls-files -z -- '*.php' '*.tpl')
