@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-web
+  labels:
+    {{- include "travianz.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  replicas: {{ .Values.web.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      {{- include "travianz.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        {{- include "travianz.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: web
+    spec:
+      containers:
+        - name: web
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+          # Liveness must NOT depend on the DB (lesson learned): a MariaDB
+          # hiccup must not cascade-restart web pods.
+          livenessProbe:
+            httpGet:
+              path: /img/x.gif
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          # Readiness exercises PHP + DB: during a DB outage the pod leaves
+          # the Service instead of serving 500s.
+          readinessProbe:
+            httpGet:
+              path: /login.php
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources: {{- toYaml .Values.web.resources | nindent 12 }}
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "sleep 5" ]
+          volumeMounts:
+            - name: config
+              mountPath: /var/www/html/GameEngine/config.php
+              subPath: config.php
+              readOnly: true
+            {{- if .Values.locks.enabled }}
+            - name: locks
+              mountPath: /var/www/html/GameEngine/Prevention
+            {{- end }}
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ .Release.Name }}-config
+        {{- if .Values.locks.enabled }}
+        - name: locks
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-locks
+        {{- end }}
