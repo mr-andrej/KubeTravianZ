@@ -1,0 +1,83 @@
+# TravianZ chart values.
+# Baseline mirrors the local docker-compose install (GameEngine/config.php).
+
+image:
+  repository: ghcr.io/kubetravianz/travianz
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# --- Game configuration -----------------------------------------------------
+# Most game settings live in files/config.php.tpl (the proven generated
+# config). Values here are only the environment-specific ones.
+game:
+  serverName: KubeTravianZ
+  worldMax: 100
+  tablePrefix: s1_
+  # Fixed values, not "now": ArgoCD diffs rendered manifests against the
+  # cluster, so time-derived defaults would cause perpetual drift.
+  startDate: "23.10.2026"   # dd.mm.yyyy
+  startTime: "12:00"        # HH:MM
+  commenceEpoch: 1790328628 # unix epoch of server start
+  cronLoopSeconds: 0   # 0 = one tick per invocation (cron pod loops itself)
+  cronTickSeconds: 60
+
+# --- Secrets ------------------------------------------------------------------
+# DEV ONLY plaintext. In AWS these come from a SealedSecret instead; see
+# templates/secret-config.yaml.
+secrets:
+  dbPassword: travianzpass
+  dbRootPassword: rootpassword
+  cronKey: change-me-cron-key
+  mhPassword: mhpass123
+  supportPassword: supportpass123
+  adminPassword: adminpass
+
+# --- Database ---------------------------------------------------------------
+mariadb:
+  image: mariadb:11
+  storageSize: 10Gi
+  # storageClassName must be zonal EBS (gp3) in AWS; empty = cluster default
+  storageClassName: ""
+  auth:
+    database: travian
+    user: travianz
+  replica:
+    enabled: false     # v1: single primary; replica bootstrap is a later step
+
+# --- Web (php-apache) ---------------------------------------------------------
+web:
+  replicas: 2
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits:   { cpu: 500m, memory: 512Mi }
+
+# --- Cron singleton -------------------------------------------------------------
+cron:
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits:   { cpu: 250m, memory: 256Mi }
+
+# --- Shared lock directory (EFS in AWS, default SC locally) -----------------------
+locks:
+  enabled: true
+  storageClassName: ""   # "efs" in AWS; empty = cluster default for local tests
+  storageSize: 1Gi
+
+# --- Init Job ---------------------------------------------------------------------
+init:
+  adminName: admin
+  adminEmail: admin@example.com
+  adminTribe: 1
+
+# --- Ingress ------------------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  host: travianz.localtest.me   # <eip>.sslip.io in AWS
+  tls: false                    # cert-manager handles this in AWS
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCpu: 70

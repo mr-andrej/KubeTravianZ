@@ -1,0 +1,17 @@
+{{- if .Values.locks.enabled }}
+# Shared RWX volume for GameEngine/Prevention (cron marker + flock mutexes).
+# EFS in AWS; any default StorageClass works for local validation.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-locks
+  labels: {{- include "travianz.labels" . | nindent 4 }}
+spec:
+  accessModes: [ "ReadWriteMany" ]
+  {{- if .Values.locks.storageClassName }}
+  storageClassName: {{ .Values.locks.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.locks.storageSize }}
+{{- end }}
