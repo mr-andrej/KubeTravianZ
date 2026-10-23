@@ -1,0 +1,6 @@
+apiVersion: v2
+name: travianz
+description: TravianZ game server (PHP 8.3 Apache + MariaDB) with cron automation
+type: application
+version: 0.1.0
+appVersion: "11"
