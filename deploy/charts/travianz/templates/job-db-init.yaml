@@ -1,0 +1,70 @@
+# Idempotent DB bootstrap: creates schema, world data, croppers and accounts
+# on first install; exits 0 immediately if the database is already installed.
+# Helm hook: runs before web/cron on install and upgrade.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-db-init
+  labels:
+    {{- include "travianz.labels" . | nindent 4 }}
+    app.kubernetes.io/component: db-init
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        {{- include "travianz.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: db-init
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "php", "/var/www/html/scripts/install_cli.php" ]
+          env:
+            - name: TZ_DB_WAIT_SECONDS
+              value: "180"
+            - name: TZ_ADMIN_NAME
+              value: {{ .Values.init.adminName | quote }}
+            - name: TZ_ADMIN_EMAIL
+              value: {{ .Values.init.adminEmail | quote }}
+            - name: TZ_ADMIN_TRIBE
+              value: {{ .Values.init.adminTribe | quote }}
+            - name: TZ_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: admin-password
+            - name: TZ_MH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: mh-password
+            - name: TZ_SUPPORT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-secrets
+                  key: support-password
+          volumeMounts:
+            - name: config
+              mountPath: /var/www/html/GameEngine/config.php
+              subPath: config.php
+              readOnly: true
+            {{- if .Values.locks.enabled }}
+            - name: locks
+              mountPath: /var/www/html/GameEngine/Prevention
+            {{- end }}
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ .Release.Name }}-config
+        {{- if .Values.locks.enabled }}
+        - name: locks
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-locks
+        {{- end }}
