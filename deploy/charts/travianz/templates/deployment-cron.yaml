@@ -1,0 +1,65 @@
+# Singleton automation loop: exactly one cron runner for the whole game.
+# 1 replica + Recreate: never two runners during a rollout (duplicate ticks
+# would double battles/builds). See architecture doc 04, decision 1.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-cron
+  labels:
+    {{- include "travianz.labels" . | nindent 4 }}
+    app.kubernetes.io/component: cron
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "travianz.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: cron
+  template:
+    metadata:
+      labels:
+        {{- include "travianz.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: cron
+    spec:
+      containers:
+        - name: cron
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              while true; do
+                php /var/www/html/cron.php --once || true
+                sleep {{ .Values.game.cronTickSeconds }}
+              done
+          # Marker file is rewritten every tick; stale marker = hung loop.
+          # Same UID (www-data, 33) as web: the Prevention dir is shared.
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - test $(( $(date +%s) - $(stat -c %Y /var/www/html/GameEngine/Prevention/cron_active.txt) )) -lt 180
+            initialDelaySeconds: 120
+            periodSeconds: 60
+          resources: {{- toYaml .Values.cron.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /var/www/html/GameEngine/config.php
+              subPath: config.php
+              readOnly: true
+            {{- if .Values.locks.enabled }}
+            - name: locks
+              mountPath: /var/www/html/GameEngine/Prevention
+            {{- end }}
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ .Release.Name }}-config
+        {{- if .Values.locks.enabled }}
+        - name: locks
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-locks
+        {{- end }}
