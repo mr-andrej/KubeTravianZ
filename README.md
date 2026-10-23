@@ -85,6 +85,17 @@ config editor, quest editor, promo codes, maintenance mode, server reset.
 scripts/check.sh all    # php lint, unit tests, compose validation, shell tests
 ```
 
+## CI/CD and branches
+
+- **master**: stable. **test**: integration/staging companion. Feature work
+  happens on `feature/*` branches and flows feature -> test -> master.
+- **Quality** workflow (PRs and pushes to master/test/feature/*): PHP lint
+  matrix (8.3-8.5), regression tests, compose validation, shell tests.
+- **Helm chart** workflow (changes under `deploy/`): helm lint, template
+  render, php -l on the rendered config.php, plaintext-secret guard.
+- **Image** workflow (master and test): multi-arch build (amd64 + arm64 for
+  the Graviton nodes) pushed to GHCR; `latest`/`test` tags plus sha tags.
+
 ## Credits and license
 
 Game engine: TravianZ by Dzoki, Shadow and contributors
