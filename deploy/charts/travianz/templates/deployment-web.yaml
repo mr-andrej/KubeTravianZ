@@ -22,6 +22,11 @@ spec:
         {{- include "travianz.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: web
     spec:
+      # fsGroup 33 (www-data): makes the shared Prevention volume writable by
+      # Apache workers. No runAsUser here: apache2-foreground starts as root
+      # and drops privileges itself.
+      securityContext:
+        fsGroup: 33
       containers:
         - name: web
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
