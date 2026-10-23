@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - master
+      - test
+      - "feature/**"
 
 permissions:
   contents: read
