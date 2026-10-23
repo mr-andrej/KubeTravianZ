@@ -35,3 +35,21 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Local runtime artifacts (never bake into images)
+.env
+var/tmp/
+var/log/
+var/installed
+installed_*/
+GameEngine/config.php
+GameEngine/Admin/Mods/constant_format.tpl
+GameEngine/Prevention/*
+GameEngine/Notes/*
+
+# Not needed in the image
+documentation/
+tests/
+deploy/
+.github/
+scripts/__pycache__/
