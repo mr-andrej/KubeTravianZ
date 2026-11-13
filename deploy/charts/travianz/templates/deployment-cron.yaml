@@ -21,6 +21,8 @@ spec:
       labels:
         {{- include "travianz.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: cron
+      annotations:
+        checksum/config: {{ include "travianz.configPhp" . | sha256sum }}
     spec:
       # www-data (33): matches Apache's worker UID so files created on the
       # shared Prevention volume stay writable for web pods (root-squash on

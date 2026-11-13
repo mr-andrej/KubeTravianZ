@@ -21,6 +21,10 @@ spec:
       labels:
         {{- include "travianz.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: web
+      annotations:
+        # Roll pods when config.php changes (mounted secrets don't trigger
+        # rollouts on their own).
+        checksum/config: {{ include "travianz.configPhp" . | sha256sum }}
     spec:
       # fsGroup 33 (www-data): makes the shared Prevention volume writable by
       # Apache workers. No runAsUser here: apache2-foreground starts as root

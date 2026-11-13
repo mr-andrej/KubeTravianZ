@@ -561,9 +561,9 @@ define("PAGE_ACCESS_LOG_FILENAME", 'access.log'); // filename ONLY, no path!
 ////////////////////////////////////////////
 //   ****  DOMAIN/SERVER SETTINGS  ****   //
 ////////////////////////////////////////////
-define("DOMAIN", "https://{{ .Values.ingress.host }}/");
-define("HOMEPAGE", "https://{{ .Values.ingress.host }}/");
-define("SERVER", "https://{{ .Values.ingress.host }}/");
+define("DOMAIN", "{{ .Values.game.publicUrl | default (printf "https://%s/" .Values.ingress.host) }}");
+define("HOMEPAGE", "{{ .Values.game.publicUrl | default (printf "https://%s/" .Values.ingress.host) }}");
+define("SERVER", "{{ .Values.game.publicUrl | default (printf "https://%s/" .Values.ingress.host) }}");
 
 $requse = 0;
 
