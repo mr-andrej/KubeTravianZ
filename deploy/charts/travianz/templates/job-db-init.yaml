@@ -9,8 +9,11 @@ metadata:
     {{- include "travianz.labels" . | nindent 4 }}
     app.kubernetes.io/component: db-init
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": "-5"
+    # post-install: MariaDB is a normal release resource, so the database must
+    # exist before init can run. install_cli.php waits for it (TZ_DB_WAIT_SECONDS).
+    # Web/cron pods crash-loop harmlessly until the schema appears.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
   backoffLimit: 3
@@ -24,6 +27,16 @@ spec:
         runAsUser: 33
         runAsGroup: 33
         fsGroup: 33
+      {{- if .Values.locks.enabled }}
+      initContainers:
+        - name: locks-permissions
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "sh", "-c", "chown -R 33:33 /locks" ]
+          volumeMounts:
+            - name: locks
+              mountPath: /locks
+      {{- end }}
       restartPolicy: Never
       containers:
         - name: init

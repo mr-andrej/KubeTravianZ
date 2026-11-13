@@ -21,12 +21,26 @@ spec:
       labels:
         {{- include "travianz.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: web
+      annotations:
+        # Roll pods when config.php changes (mounted secrets don't trigger
+        # rollouts on their own).
+        checksum/config: {{ include "travianz.configPhp" . | sha256sum }}
     spec:
       # fsGroup 33 (www-data): makes the shared Prevention volume writable by
       # Apache workers. No runAsUser here: apache2-foreground starts as root
       # and drops privileges itself.
       securityContext:
         fsGroup: 33
+      {{- if .Values.locks.enabled }}
+      initContainers:
+        - name: locks-permissions
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "sh", "-c", "chown -R 33:33 /locks" ]
+          volumeMounts:
+            - name: locks
+              mountPath: /locks
+      {{- end }}
       containers:
         - name: web
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

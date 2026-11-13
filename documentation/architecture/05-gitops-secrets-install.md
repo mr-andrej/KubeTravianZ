@@ -46,13 +46,17 @@ Recap of the enemy: the wizard writes `GameEngine/config.php`, renames
 `install/` away, touches `var/installed`, and generates a random table prefix
 in a PHP session. None of that belongs in a cluster. Solution, three parts:
 
-### a) config.php as rendered ConfigMap
+### a) config.php as a rendered Secret (amended)
 
-`install/data/constant_format.tpl` is already a `%TOKEN%` template. A small
-render step (Helm `tpl` or envsubst in an init container) produces
-`config.php` from Helm values (server name, speeds, world size, feature flags
-like the new tribes, DB creds from the sealed secret) plus the fixed answers
-the wizard would have asked. Mounted read-only at `GameEngine/config.php`.
+Originally planned as a ConfigMap; amended during chart implementation:
+`config.php` embeds SQL_PASS and CRON_KEY, so it is mounted from a **Secret**
+(`<release>-config`), which the deploy repo carries as a SealedSecret. The
+chart does not re-derive the wizard's 120 tokens; it ships the proven
+generated `config.php` (exported from the reference compose install) as
+`files/config.php.tpl` with Helm placeholders only in the ~16
+environment-specific spots (DB host/creds, URLs, server name, cron key,
+table prefix). Rendered with `tpl()` at deploy time.
+
 Admin-panel config editing is sacrificed on the GitOps altar: edits happen in
 git. Documented as a deliberate trade-off.
 

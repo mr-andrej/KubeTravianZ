@@ -50,6 +50,23 @@ When finished:
 - Full reset: `docker compose down -v`, remove `var/installed`,
   `GameEngine/config.php` and `installed_*`, then start again.
 
+## Local Kubernetes (minikube)
+
+The full production-style stack (Helm chart: web pods, cron singleton,
+MariaDB StatefulSet, init Job) runs locally on minikube. One PowerShell
+command handles everything: Docker Desktop, minikube, image build and load,
+helm install, and port-forwarding.
+
+```powershell
+.\scripts\dev-up.ps1            # start everything (idempotent)
+.\scripts\dev-up.ps1 -Rebuild   # force a fresh image build
+.\scripts\dev-up.ps1 -Down      # uninstall the game
+```
+
+Then open http://localhost:8082 (admin login: `admin` / `adminpass`).
+The game links to itself via the `game.publicUrl` value; the script sets it
+to the port-forward address so in-game navigation stays on localhost.
+
 ### Game automation (cron)
 
 Game ticks (battles, building completion, training) run through `cron.php`:
@@ -74,6 +91,9 @@ config editor, quest editor, promo codes, maintenance mode, server reset.
 | `Admin/` | In-game admin panel |
 | `Dockerfile`, `docker-compose.yml`, `.env.example` | Local dev stack (PHP 8.3 Apache, MariaDB, phpMyAdmin) |
 | `scripts/install_headless.py` | Headless driver for the install wizard |
+| `scripts/install_cli.php`, `scripts/install_accounts.php` | Idempotent DB bootstrap used by the K8s init Job |
+| `scripts/dev-up.ps1` | One-command local Kubernetes environment (minikube) |
+| `deploy/charts/travianz/` | Helm chart for the game (web, cron, MariaDB, init Job) |
 | `scripts/check.sh` | Lint + tests + compose validation |
 | `tests/` | PHP and shell tests |
 | `documentation/architecture/` | K8s/AWS design docs (mermaid diagrams included) |
@@ -84,6 +104,17 @@ config editor, quest editor, promo codes, maintenance mode, server reset.
 ```bash
 scripts/check.sh all    # php lint, unit tests, compose validation, shell tests
 ```
+
+## CI/CD and branches
+
+- **master**: stable. **test**: integration/staging companion. Feature work
+  happens on `feature/*` branches and flows feature -> test -> master.
+- **Quality** workflow (PRs and pushes to master/test/feature/*): PHP lint
+  matrix (8.3-8.5), regression tests, compose validation, shell tests.
+- **Helm chart** workflow (changes under `deploy/`): helm lint, template
+  render, php -l on the rendered config.php, plaintext-secret guard.
+- **Image** workflow (master and test): multi-arch build (amd64 + arm64 for
+  the Graviton nodes) pushed to GHCR; `latest`/`test` tags plus sha tags.
 
 ## Credits and license
 

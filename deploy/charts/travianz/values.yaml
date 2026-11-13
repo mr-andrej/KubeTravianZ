@@ -20,6 +20,9 @@ game:
   commenceEpoch: 1790328628 # unix epoch of server start
   cronLoopSeconds: 0   # 0 = one tick per invocation (cron pod loops itself)
   cronTickSeconds: 60
+  # Absolute base URL the game links to itself with (DOMAIN/HOMEPAGE/SERVER).
+  # Empty = "https://<ingress.host>/". Set explicitly for port-forward dev.
+  publicUrl: ""
 
 # --- Secrets ------------------------------------------------------------------
 # DEV ONLY plaintext. In AWS these come from a SealedSecret instead; see
@@ -73,7 +76,9 @@ init:
 ingress:
   enabled: true
   className: nginx
-  host: travianz.localtest.me   # <eip>.sslip.io in AWS
+  # Placeholder only. Local dev uses game.publicUrl instead; AWS sets
+  # travianz.<eip>.sslip.io via its own values file in the deploy repo.
+  host: travianz.example.com
   tls: false                    # cert-manager handles this in AWS
 
 hpa:

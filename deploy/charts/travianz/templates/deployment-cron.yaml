@@ -21,6 +21,8 @@ spec:
       labels:
         {{- include "travianz.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: cron
+      annotations:
+        checksum/config: {{ include "travianz.configPhp" . | sha256sum }}
     spec:
       # www-data (33): matches Apache's worker UID so files created on the
       # shared Prevention volume stay writable for web pods (root-squash on
@@ -29,6 +31,18 @@ spec:
         runAsUser: 33
         runAsGroup: 33
         fsGroup: 33
+      {{- if .Values.locks.enabled }}
+      initContainers:
+        # Provisioners (minikube hostPath, some CSI) hand us a root-owned
+        # mount; fsGroup alone does not always chown it. Fix ownership first.
+        - name: locks-permissions
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "sh", "-c", "chown -R 33:33 /locks" ]
+          volumeMounts:
+            - name: locks
+              mountPath: /locks
+      {{- end }}
       containers:
         - name: cron
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
