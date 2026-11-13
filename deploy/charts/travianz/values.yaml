@@ -76,7 +76,9 @@ init:
 ingress:
   enabled: true
   className: nginx
-  host: travianz.localtest.me   # <eip>.sslip.io in AWS
+  # Placeholder only. Local dev uses game.publicUrl instead; AWS sets
+  # travianz.<eip>.sslip.io via its own values file in the deploy repo.
+  host: travianz.example.com
   tls: false                    # cert-manager handles this in AWS
 
 hpa:
