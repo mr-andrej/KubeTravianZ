@@ -27,6 +27,16 @@ spec:
       # and drops privileges itself.
       securityContext:
         fsGroup: 33
+      {{- if .Values.locks.enabled }}
+      initContainers:
+        - name: locks-permissions
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [ "sh", "-c", "chown -R 33:33 /locks" ]
+          volumeMounts:
+            - name: locks
+              mountPath: /locks
+      {{- end }}
       containers:
         - name: web
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
