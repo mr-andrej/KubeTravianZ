@@ -53,3 +53,8 @@ tests/
 deploy/
 .github/
 scripts/__pycache__/
+
+# Browser install wizard: dev-only (docker compose). Its presence in the
+# document root makes login.php redirect into /install/. The K8s init path
+# (scripts/install_cli.php + scripts/install_accounts.php) does not use it.
+install/

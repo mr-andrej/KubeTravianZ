@@ -30,6 +30,10 @@ if (PHP_SAPI !== 'cli') {
 @set_time_limit(0);
 chdir(dirname(__DIR__)); // repo root: makes $autoprefix resolution work
 
+// PHP 8.1+ defaults mysqli to exceptions; the wait-for-DB loop needs
+// return-code style instead.
+mysqli_report(MYSQLI_REPORT_OFF);
+
 require_once 'GameEngine/config.php';
 
 // ---------------------------------------------------------------------------
@@ -129,9 +133,9 @@ if (empty($out['ok'])) {
 }
 
 // ---------------------------------------------------------------------------
-// 4. Accounts: reuse the wizard's account step verbatim (it carries several
-//    historical bug fixes: Support village spiral search, bcrypt hashing, ...).
-//    In CLI, header() calls inside are harmless no-ops.
+// 4. Accounts (scripts/install_accounts.php: adapted from the wizard's
+//    account step, keeping its village-assignment fixes; the K8s image does
+//    not ship install/ at all).
 // ---------------------------------------------------------------------------
 $mhPw = getenv('TZ_MH_PASSWORD');
 $spw  = getenv('TZ_SUPPORT_PASSWORD');
@@ -140,31 +144,20 @@ if (!$mhPw || !$spw) {
     exit(1);
 }
 
-$_POST = [
-    'mhpw'               => $mhPw,
-    'spw'                => $spw,
-    'aname'              => getenv('TZ_ADMIN_NAME') ?: 'admin',
-    'aemail'             => getenv('TZ_ADMIN_EMAIL') ?: 'admin@example.com',
-    'apass'              => getenv('TZ_ADMIN_PASSWORD') ?: '',
-    'atribe'             => getenv('TZ_ADMIN_TRIBE') ?: '1',
-    'admin_rank'         => 'false',
-    'admin_support_msgs' => 'true',
-    'admin_raidable'     => 'true',
+$tzInstallAccounts = [
+    'mhpw'   => $mhPw,
+    'spw'    => $spw,
+    'aname'  => getenv('TZ_ADMIN_NAME') ?: 'admin',
+    'aemail' => getenv('TZ_ADMIN_EMAIL') ?: 'admin@example.com',
+    'apass'  => getenv('TZ_ADMIN_PASSWORD') ?: '',
+    'atribe' => getenv('TZ_ADMIN_TRIBE') ?: '1',
 ];
 
-echo "install_cli: seeding accounts (Multihunter, Support, admin '{$_POST['aname']}')...\n";
+echo "install_cli: seeding accounts (Multihunter, Support, admin '{$tzInstallAccounts['aname']}')...\n";
 $database = $freshDb();
 $GLOBALS['db'] = $database;
 $GLOBALS['link'] = $database->return_link();
-// accounts.php uses paths relative to its own directory (../../GameEngine/...),
-// which mod_php provided as cwd; replicate that here.
-// ob_start keeps the trailing header("Location: ...") in accounts.php from
-// warning about headers already sent (it is a no-op in CLI anyway).
-ob_start();
-chdir('install/include');
-include 'accounts.php';
-chdir(dirname(__DIR__));
-ob_end_clean();
+require 'scripts/install_accounts.php';
 
 echo "install_cli: done\n";
 exit(0);
